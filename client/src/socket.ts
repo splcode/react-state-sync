@@ -3,9 +3,6 @@ import { Dispatch } from 'react';
 
 const ENABLE_DEBUG_LOGS = true;
 
-// "undefined" means the URL will be computed from the `window.location` object
-const URL = process.env.NODE_ENV === 'production' ? undefined : 'http://localhost:4000';
-
 interface CallbackSuccess extends Record<string, any> {
   success: true
 }
@@ -50,8 +47,8 @@ class ConnectedMeterSocket {
   #connectedListeners: Dispatch<boolean>[] = [];
   #meters: Record<string, MeterRecord> = {};
 
-  constructor() {
-    this.#socket = io(URL);
+  constructor(url: string) {
+    this.#socket = io(url);
 
     // Setup subscriptions for socket events
     this.#socket.on('sync', this.#sync.bind(this));
@@ -165,7 +162,17 @@ class ConnectedMeterSocket {
   }
 }
 
-// Singleton so we only maintain a single connection to the server
-const connectedMeterSocket = new ConnectedMeterSocket();
+let connectedMeterSocket: ConnectedMeterSocket | null = null;
 
-export default connectedMeterSocket;
+export function initializeSocket(url: string) {
+  if (!connectedMeterSocket) {
+    connectedMeterSocket = new ConnectedMeterSocket(url);
+  }
+}
+
+export function getSocket() {
+  if (!connectedMeterSocket) {
+    throw new Error('Socket has not been initialized. Call initializeSocket(url) first.');
+  }
+  return connectedMeterSocket;
+}

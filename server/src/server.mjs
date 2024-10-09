@@ -10,7 +10,7 @@ import chalk from 'chalk';
 export function startServer(devices) {
   const io = new Server({
     cors: {
-      origin: 'http://localhost:3000'
+      origin: '*'
     }
   });
 

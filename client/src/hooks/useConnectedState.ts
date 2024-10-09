@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import socket, { InitConfig } from '../socket';
+import { getSocket, InitConfig } from '../socket';
 import debounce, { DebouncedFunction } from 'debounce';
 
 export function useConnectedState(meter: string): [number, boolean, (v: number) => void] {
@@ -30,6 +30,7 @@ export function useConnectedState(meter: string): [number, boolean, (v: number) 
 
   // Runs on hook creation to initialize meter and config subscriptions
   useEffect(() => {
+    const socket = getSocket();
     socket.on(meter, onMeterChange, setInitConfig);
     return () => {
       socket.off(meter, onMeterChange);
@@ -39,7 +40,7 @@ export function useConnectedState(meter: string): [number, boolean, (v: number) 
 
   const clientMeterUpdate = (value: number) => {
     setValue(value);
-    socket.clientMeterUpdate(meter, value);
+    getSocket().clientMeterUpdate(meter, value);
   };
 
   return [value, locked, clientMeterUpdate];
