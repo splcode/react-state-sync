@@ -1,0 +1,28 @@
+{
+  "driversPath": "./drivers",
+  "defaultDriverConfig": {
+    "syncIntervalMs": 5000,
+    "setThrottleMs": 250,
+    "unlockMeterDebounceMs": 100
+  },
+  "devices": {
+    "jim": {
+      "driver": "MockDevice",
+      "driverConfig":{
+        "syncIntervalMs": 1000
+      },
+      "config": {
+        "yourDeviceSpecificConfigHere": "192.168.1.123"
+      }
+    },
+    "gary": {
+      "driver": "MockDevice",
+      "driverConfig": {
+        "unlockMeterDebounceMs": 5000
+      },
+      "config": {
+        "yourDeviceSpecificConfigHere": "192.168.1.79"
+      }
+    }
+  }
+}
