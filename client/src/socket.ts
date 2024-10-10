@@ -1,7 +1,7 @@
 import { io, Socket } from 'socket.io-client';
 import { Dispatch } from 'react';
 
-const ENABLE_DEBUG_LOGS = true;
+const ENABLE_DEBUG_LOGS = false;
 
 interface CallbackSuccess extends Record<string, any> {
   success: true
@@ -18,11 +18,11 @@ export interface InitConfig {
   unlockMeterDebounceMs: number
 }
 
-type MeterSubscription = (value: number, skipLock: boolean) => void;
+type MeterSubscription = (value: any, skipLock: boolean) => void;
 
 interface MeterRecord {
   config?: InitConfig,
-  value?: number
+  value?: any
   meterListeners: MeterSubscription[],
   configListeners: Dispatch<InitConfig>[]
 }
@@ -131,7 +131,7 @@ class ConnectedMeterSocket {
 
   // The client is updating a meter, we need to send it to the server.
   // If we have an issue, we will notify the client with an error log and by setting the value back to the cached value
-  clientMeterUpdate(meter: string, value: number) {
+  clientMeterUpdate(meter: string, value: any) {
     this.#debug('clientMeterUpdate', meter, value);
     this.#socket.emit('meter-value', meter, value, (result: CallbackResponse) => {
       if (!result.success) {
@@ -145,7 +145,7 @@ class ConnectedMeterSocket {
 
   // Helper to change the value of a meter and notify all listeners. Called by various functions including
   // directly by the meter-value-echo event which contains data from other clients.
-  #meterUpdateAndNotify(skipLock: boolean, meter: string, value: number) {
+  #meterUpdateAndNotify(skipLock: boolean, meter: string, value: any) {
     this.#debug('#meterUpdateAndNotify', skipLock, meter, value);
     if (!this.#meters[meter]) {
       return console.warn(`Cannot notify! UnknownMeter! "${meter}"`);

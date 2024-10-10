@@ -1,6 +1,6 @@
 {
   "name": "@splcode/state-server",
-  "version": "1.0.2",
+  "version": "1.0.5",
   "description": "A state server library for device management and real-time communication",
   "main": "src/index.mjs",
   "scripts": {

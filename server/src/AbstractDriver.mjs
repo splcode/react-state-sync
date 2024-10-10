@@ -18,7 +18,7 @@ import config from '../config.json' assert { type: 'json' };
 
 /**
  * @typedef {Object} MeterRecord
- * @property {number} value
+ * @property {any} value
  * @property {string | undefined} locker
  */
 
@@ -27,7 +27,7 @@ export class AbstractDriver extends EventEmitter {
   #driverConfig;
   /** @type {Object} The device config */
   config;
-  /** @type {number} - The setInterval ID for our sync fn */
+  /** @type {any} - The setInterval ID for our sync fn */
   #syncInterval;
   /** @type {Record<string, MeterRecord>} - Locally keeps track of the latest value and the socketId of the locker */
   #meters = {};
@@ -125,7 +125,7 @@ export class AbstractDriver extends EventEmitter {
    * Used by the server when connected clients attempt to change the value of a meter
    * @param {string} socketId
    * @param {string} meterName
-   * @param {number} value
+   * @param {any} value
    */
   clientMeterUpdate(socketId, meterName, value) {
     const meter = this.#meters[meterName];
@@ -161,7 +161,7 @@ export class AbstractDriver extends EventEmitter {
   /**
    * Should be called when _connect is executing to register all meters that the device has
    * @param {string} meterName
-   * @param {number} [defaultValue]
+   * @param {any} [defaultValue]
    * @return {void}
    */
   _registerMeter(meterName, defaultValue = 0) {
@@ -203,7 +203,7 @@ export class AbstractDriver extends EventEmitter {
    * Get latest data from device meter, used by syncIntervalMs
    * @abstract
    * @param {string} meterName
-   * @returns {Promise<number>}
+   * @returns {Promise<any>}
    */
   async _get(meterName) {
     throw error('UnimplementedMethod', '_get');
@@ -213,7 +213,7 @@ export class AbstractDriver extends EventEmitter {
    * Set latest data that clients have changed a specific meter to
    * @abstract
    * @param {string} meterName
-   * @param {number} value
+   * @param {any} value
    * @returns {Promise<void>}
    */
   async _set(meterName, value) {
