@@ -1,6 +1,7 @@
 // index.mjs (Library entry point)
-import fs from 'node:fs';
+import fs from 'node:fs/promises';
 import path from 'node:path';
+import url from 'node:url';
 import { AbstractDriver } from './AbstractDriver.mjs';
 import { startServer } from './server.mjs';
 import { error } from './errors.mjs';
@@ -14,32 +15,28 @@ export { AbstractDriver };
  */
 async function validateDrivers(driversPath) {
   console.log(chalk.blue('Validating drivers...'));
-  const deviceFilenames = fs.readdirSync(driversPath);
-
-  const importedModules = await Promise.all(
-      deviceFilenames.map(async (filename) => ({
-        filename,
-        module: await import(path.join(driversPath, filename).replaceAll('\\', '/'))
-      }))
-  );
 
   const drivers = {};
 
-  for (const { filename, module } of importedModules) {
-    const clazz = module.default;
+  for (const filename of await fs.readdir(driversPath)) {
+    console.debug(filename);
+    const module = await import(
+      url.pathToFileURL(
+        path.join(driversPath, filename)
+      )
+    );
 
-    if (!clazz) {
+    if (!module.default) {
       throw error('MissingDefaultExport', filename);
     }
-    if (!(clazz.prototype instanceof AbstractDriver)) {
+    if (!(module.default.prototype instanceof AbstractDriver)) {
       throw error('MissingDeviceExtend', filename);
     }
-
-    if (clazz.name in drivers) {
-      throw error('DuplicateDriverName', clazz.name);
+    if (module.default.name in drivers) {
+      throw error('DuplicateDriverName', module.default.name);
     }
 
-    drivers[clazz.name] = clazz;
+    drivers[module.default.name] = module.default;
   }
 
   console.log(chalk.green('Drivers validated!\n'));
