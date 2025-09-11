@@ -7,7 +7,7 @@ import chalk from 'chalk';
 /**
  * @param {Record<string, AbstractDriver>} devices
  */
-export function startServer(devices) {
+export function startServer(devices, uiLayout) {
   const io = new Server({
     cors: {
       origin: '*'
@@ -50,6 +50,11 @@ export function startServer(devices) {
       } catch (err) {
         return callback({ success: false, err });
       }
+    });
+
+    // Listen for UI layout requests and acknowledge with config-based layout
+    socket.on(ClientEvents.GET_UI_LAYOUT, (_, callback) => {
+      callback(uiLayout);
     });
 
     // On client disconnect, unlock all meters to ensure clean state

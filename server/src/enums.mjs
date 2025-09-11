@@ -8,6 +8,8 @@ export const DeviceEvents = {
 export const ClientEvents = {
   // On client connection, forces existing state to client
   INIT_SYNC: 'init-sync',
+  // Sync UI layout parsed from config
+  GET_UI_LAYOUT: 'get-ui-layout',
   // New values directly from device
   SYNC: 'sync',
   // Value from client to server

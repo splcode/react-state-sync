@@ -87,5 +87,20 @@ export async function initializeAndStartServer({ driversPath, config }) {
 
   console.log(chalk.greenBright('\n~~~~~SETUP COMPLETE~~~~~'));
 
-  await startServer(devices);
+  // TODO: We want to generate UI state from config.yaml, but lets
+  // use this temporarily just to get the connection established
+  // to the podcart UI. Thinking it might look something like this once
+  // parsed.
+  const uiLayout = {
+    video: [
+      {
+        type: 'group'
+        , direction: 'horizontal'
+        , components:
+          [{ type: 'toggle' }
+          ]
+      }
+    ]
+  }
+  await startServer(devices, uiLayout);
 }

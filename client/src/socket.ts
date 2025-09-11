@@ -160,6 +160,13 @@ class ConnectedMeterSocket {
       listener(...args);
     }
   }
+
+  // Request UI layout from state-server
+  async getUiLayout() {
+    return await new Promise<any>((resolve) => {
+      this.#socket.emit('get-ui-layout', '', (resp : any) => resolve(resp))
+    });
+  }
 }
 
 let connectedMeterSocket: ConnectedMeterSocket | null = null;
