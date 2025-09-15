@@ -13,16 +13,27 @@ export { AbstractDriver };
  * @param {string} driversPath - The path to the drivers folder.
  * @returns {Promise<Record<string, Class<AbstractDriver>>>}
  */
-async function validateDrivers(driversPath) {
+async function loadDrivers({ driversPath, pluginsPath }) {
   console.log(chalk.blue('Validating drivers...'));
 
+  // Validate both in-tree and plugin drivers
+  const inTreeDrivers = await validateDrivers(driversPath);
+  const pluginDrivers = await validateDrivers(pluginsPath);
+
+  const drivers = {...inTreeDrivers, ...pluginDrivers};
+
+  console.log(chalk.green('Drivers validated!\n'));
+  return drivers;
+}
+
+async function validateDrivers(filePath) {
   const drivers = {};
 
-  for (const filename of await fs.readdir(driversPath)) {
+  for (const filename of await fs.readdir(filePath)) {
     console.debug(filename);
     const module = await import(
       url.pathToFileURL(
-        path.join(driversPath, filename)
+        path.join(filePath, filename)
       )
     );
 
@@ -38,11 +49,8 @@ async function validateDrivers(driversPath) {
 
     drivers[module.default.name] = module.default;
   }
-
-  console.log(chalk.green('Drivers validated!\n'));
   return drivers;
 }
-
 /**
  * @param {Record<string, Class<AbstractDriver>>} drivers
  * @param {Record<string, any>} devicesConfig
@@ -72,8 +80,8 @@ async function initDevices(drivers, devicesConfig) {
  * @param {string} options.driversPath - Path to the drivers directory.
  * @param {object} options.config - The config object for devices.
  */
-export async function initializeAndStartServer({ driversPath, config }) {
-  const drivers = await validateDrivers(driversPath);
+export async function initializeAndStartServer(config) {
+  const drivers = await loadDrivers(config);
   const devices = await initDevices(drivers, config.devices);
 
   process.on('SIGINT', async () => {
