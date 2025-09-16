@@ -11,6 +11,7 @@ export { AbstractDriver };
 
 /**
  * @param {string} driversPath - The path to the drivers folder.
+ * @param {string} pluginsPath - The path to the plugins folder.
  * @returns {Promise<Record<string, Class<AbstractDriver>>>}
  */
 async function loadDrivers({ driversPath, pluginsPath }) {
@@ -26,6 +27,10 @@ async function loadDrivers({ driversPath, pluginsPath }) {
   return drivers;
 }
 
+/**
+ * @param {string} filePath - The path to the drivers or plugins folder. 
+ * @returns {Promise<Record<string, Class<AbstractDriver>>>}
+ */
 async function validateDrivers(filePath) {
   const drivers = {};
 
@@ -76,9 +81,8 @@ async function initDevices(drivers, devicesConfig) {
 
 /**
  * Main entry point to start the library.
- * @param {object} options
- * @param {string} options.driversPath - Path to the drivers directory.
- * @param {object} options.config - The config object for devices.
+ * @param {Object} config - Configuration for all devices
+ * @param {Object} config.devices - Driver name and individual config for each device
  */
 export async function initializeAndStartServer(config) {
   const drivers = await loadDrivers(config);
