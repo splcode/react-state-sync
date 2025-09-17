@@ -21,9 +21,11 @@ declare module "uiLayout" {
   export type UiComponent
     = UiGroup
     | UiCard
+    | UiPaper
     | UiStack
     | UiCentered
     | UiToggleButton
+    | UiToggleIcon
     | UiText
     | UiTextMeter
 
@@ -43,6 +45,14 @@ declare module "uiLayout" {
   export interface UiCard {
     type: 'card',
     // style props for mantine's Card component
+    styleProps: {[k: string]: string},
+    components: UiComponent[];
+  }
+
+  // Paper wrapper of subcomponents
+  export interface UiPaper {
+    type: 'paper',
+    // style props for mantine's Paper component
     styleProps: {[k: string]: string},
     components: UiComponent[];
   }
@@ -70,12 +80,31 @@ declare module "uiLayout" {
     // Text values to cycle the button between
     values: string[];
     // Transform button values into values we send to the meter
-    //
     // If a value is not present here, we send the raw string to the meter
     valueMapping: {[k: string]: any}
     // The meter we push to when the button is toggled
     // will be prefixed with `<device-id>/`
     meter: string;
+  }
+
+  // A button icon that toggles between two states
+  // Sends values to a meter on change
+  export interface UiToggleIcon<T> {
+    type: 'toggleIcon';
+    // Value to indicate true state
+    trueValue: T
+    // Value to indicate false state
+    falseValue: T
+    // Meter pushed when button is toggled
+    meter: string;
+    // Icon to be displayed for true state
+    isTrueIcon: string;
+    // Icon to be displayed for false state
+    isFalseIcon: string;
+    // Style props for true state
+    isTrueStyleProps: {[k: string]: string}
+    // Style props for false state
+    isFalseStyleProps: {[k: string]: string}
   }
 
   // Static text
