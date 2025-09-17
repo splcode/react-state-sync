@@ -223,4 +223,21 @@ export class AbstractDriver extends EventEmitter {
   async _set(meterName, value) {
     throw error('UnimplementedMethod', '_set');
   }
+
+  /**
+   * Get the data required to render a driver's component in the frontend
+   * TODO: Add JSDoc object properties later
+   * @returns {Object}
+   */
+  getUiLayout() {
+    return {}; // TODO: Throw an error once this method lives on all child classes
+  }
+
+  /**
+   * Get the tab a driver's component is to be rendered under
+   * @returns {string}
+   */
+  getUiTab() {
+    return 'audio'; // TODO: Throw an error once this method lives on all child classes
+  }
 }

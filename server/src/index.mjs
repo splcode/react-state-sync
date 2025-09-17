@@ -21,14 +21,14 @@ async function loadDrivers({ driversPath, pluginsPath }) {
   const inTreeDrivers = await validateDrivers(driversPath);
   const pluginDrivers = await validateDrivers(pluginsPath);
 
-  const drivers = {...inTreeDrivers, ...pluginDrivers};
+  const drivers = { ...inTreeDrivers, ...pluginDrivers };
 
   console.log(chalk.green('Drivers validated!\n'));
   return drivers;
 }
 
 /**
- * @param {string} filePath - The path to the drivers or plugins folder. 
+ * @param {string} filePath - The path to the drivers or plugins folder.
  * @returns {Promise<Record<string, Class<AbstractDriver>>>}
  */
 async function validateDrivers(filePath) {
@@ -56,6 +56,7 @@ async function validateDrivers(filePath) {
   }
   return drivers;
 }
+
 /**
  * @param {Record<string, Class<AbstractDriver>>} drivers
  * @param {Record<string, any>} devicesConfig
@@ -99,20 +100,32 @@ export async function initializeAndStartServer(config) {
 
   console.log(chalk.greenBright('\n~~~~~SETUP COMPLETE~~~~~'));
 
-  // TODO: We want to generate UI state from config.yaml, but lets
-  // use this temporarily just to get the connection established
-  // to the podcart UI. Thinking it might look something like this once
-  // parsed.
-  const uiLayout = {
-    video: [
-      {
-        type: 'group'
-        , direction: 'horizontal'
-        , components:
-          [{ type: 'toggle' }
-          ]
-      }
-    ]
-  }
+  const uiLayout = generateUiLayout(devices);
   await startServer(devices, uiLayout);
+}
+
+/**
+ * Generate the layout for the UI
+ * @param {Object} devices
+ * @returns {Object} // TODO: Add a typedef or properties later
+ */
+function generateUiLayout(devices) {
+  const uiLayout = {};
+
+  for (let device in devices) {
+    const deviceDriver = devices[device];
+    const tab = deviceDriver.getUiTab();
+    const deviceComponent = {
+      id: device,
+      component: deviceDriver.getUiLayout()
+    }
+
+    if (tab in uiLayout) {
+      uiLayout[tab].push(deviceComponent);
+    } else {
+      uiLayout[tab] = [deviceComponent];
+    }
+  }
+
+  return uiLayout;
 }
