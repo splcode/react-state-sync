@@ -19,7 +19,7 @@ declare module "uiLayout" {
   // Types of UI components that drivers may return
   // TODO: Each device ui method should return a UiComponent
   export type UiComponent
-    = UiGroup
+    = UiBox
     | UiCard
     | UiPaper
     | UiStack
@@ -33,8 +33,8 @@ declare module "uiLayout" {
   //
   // TODO: can we combine group/card/stack/centered into one type
   // maybe with a field like subType: 'card' | 'box' | 'centered' | 'stack'
-  export interface UiGroup {
-    type: 'group';
+  export interface UiBox {
+    type: 'box';
     // style props for mantine's Box component
     styleProps: {[k: string]: string}
     // child components
@@ -124,4 +124,3 @@ declare module "uiLayout" {
     // optional text to render if meter returns null or undefined
     fallbackContent?: string;
   }
-}
