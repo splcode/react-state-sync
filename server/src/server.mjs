@@ -41,7 +41,7 @@ export function startServer(devices, serverConfig) {
     initSync();
 
     // Execute socketOnConnectHook whenever a new client connects
-    if ('socketOnConnectHook' in serverConfig) {
+    if (serverConfig?.socketOnConnectHook) {
       serverConfig.socketOnConnectHook(socket, devices);
     }
 
