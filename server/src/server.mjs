@@ -7,7 +7,7 @@ import chalk from 'chalk';
 /**
  * @param {Record<string, AbstractDriver>} devices
  */
-export function startServer(devices, uiLayout) {
+export function startServer(devices, serverConfig) {
   const io = new Server({
     cors: {
       origin: '*'
@@ -40,6 +40,11 @@ export function startServer(devices, uiLayout) {
     };
     initSync();
 
+    // Execute socketOnConnectHook whenever a new client connects
+    if ('socketOnConnectHook' in serverConfig) {
+      serverConfig.socketOnConnectHook(socket, devices);
+    }
+
     // Listen for meter value updates from clients. Update the device, and then echo to other connected clients
     socket.on(ClientEvents.METER_VALUE, (meter, value, callback) => {
       try {
@@ -52,10 +57,6 @@ export function startServer(devices, uiLayout) {
       }
     });
 
-    // Listen for UI layout requests and acknowledge with config-based layout
-    socket.on(ClientEvents.GET_UI_LAYOUT, (_, callback) => {
-      callback(uiLayout);
-    });
 
     // On client disconnect, unlock all meters to ensure clean state
     socket.on('disconnect', () => {

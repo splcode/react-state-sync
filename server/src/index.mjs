@@ -82,12 +82,12 @@ async function initDevices(drivers, devicesConfig) {
 
 /**
  * Main entry point to start the library.
- * @param {Object} config - Configuration for all devices
- * @param {Object} config.devices - Driver name and individual config for each device
+ * @param {Object} deviceConfig - Configuration for all devices
+ * @param {Object} serverConfig - Server configuration object
  */
-export async function initializeAndStartServer(config) {
-  const drivers = await loadDrivers(config);
-  const devices = await initDevices(drivers, config.devices);
+export async function initializeAndStartServer(devicesConfig, serverConfig) {
+  const drivers = await loadDrivers(devicesConfig);
+  const devices = await initDevices(drivers, devicesConfig.devices);
 
   process.on('SIGINT', async () => {
     console.log(chalk.red('\n~~~~~Shutting down!~~~~~'));
@@ -100,32 +100,5 @@ export async function initializeAndStartServer(config) {
 
   console.log(chalk.greenBright('\n~~~~~SETUP COMPLETE~~~~~'));
 
-  const uiLayout = generateUiLayout(devices);
-  await startServer(devices, uiLayout);
-}
-
-/**
- * Generate the layout for the UI
- * @param {Object} devices
- * @returns {Object} // TODO: Add a typedef or properties later
- */
-function generateUiLayout(devices) {
-  const uiLayout = {};
-
-  for (let device in devices) {
-    const deviceDriver = devices[device];
-    const tab = deviceDriver.getUiTab();
-    const deviceComponent = {
-      id: device,
-      component: deviceDriver.getUiLayout()
-    }
-
-    if (tab in uiLayout) {
-      uiLayout[tab].push(deviceComponent);
-    } else {
-      uiLayout[tab] = [deviceComponent];
-    }
-  }
-
-  return uiLayout;
+  await startServer(devices, serverConfig);
 }

@@ -161,10 +161,10 @@ class ConnectedMeterSocket {
     }
   }
 
-  // Request UI layout from state-server
-  async getUiLayout() {
+  // Send a generic client event
+  async sendGenericClientEvent(eventData?: unknown) {
     return await new Promise<any>((resolve) => {
-      this.#socket.emit('get-ui-layout', '', (resp : any) => resolve(resp))
+      this.#socket.emit('generic-client-event', eventData, (resp : any) => resolve(resp))
     });
   }
 }
