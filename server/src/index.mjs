@@ -33,8 +33,16 @@ async function loadDrivers({ driversPath, pluginsPath }) {
  */
 async function validateDrivers(filePath) {
   const drivers = {};
+  let pathContents = [];
 
-  for (const filename of await fs.readdir(filePath)) {
+  try {
+    pathContents = await fs.readdir(filePath);
+  } catch (e) {
+    console.debug(`Skipping loading drivers from non-existent file path: ${filePath}`);
+    return drivers;
+  }
+
+  for (const filename of pathContents) {
     console.debug(filename);
     const module = await import(
       url.pathToFileURL(
