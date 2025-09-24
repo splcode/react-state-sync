@@ -1,7 +1,0 @@
-{
-  "coc.preferences.formatOnSave": false,
-  "json.format.enable": false,
-  "typescript.format.enable": false,
-  "eslint.format.enable": false,
-  "prettier.enable": false
-}

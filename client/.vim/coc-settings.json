@@ -1,6 +1,0 @@
-{
-  "prettier.enable": false,
-  "typescript.format.enable": false,
-  "eslint.format.enable": false,
-  "json.format.enable": false
-}
