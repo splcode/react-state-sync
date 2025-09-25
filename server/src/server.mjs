@@ -57,7 +57,6 @@ export function startServer(devices, serverConfig) {
       }
     });
 
-
     // On client disconnect, unlock all meters to ensure clean state
     socket.on('disconnect', () => {
       console.log(chalk.red('Disconnected:', socket.id));
