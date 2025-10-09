@@ -7,7 +7,7 @@ import chalk from 'chalk';
 /**
  * @param {Record<string, AbstractDriver>} devices
  */
-export function startServer(devices) {
+export function startServer(devices, serverConfig) {
   const io = new Server({
     cors: {
       origin: '*'
@@ -39,6 +39,11 @@ export function startServer(devices) {
       socket.emit(ClientEvents.INIT_SYNC, initData);
     };
     initSync();
+
+    // Execute socketOnConnectHook whenever a new client connects
+    if (serverConfig?.socketOnConnectHook) {
+      serverConfig.socketOnConnectHook(socket, devices);
+    }
 
     // Listen for meter value updates from clients. Update the device, and then echo to other connected clients
     socket.on(ClientEvents.METER_VALUE, (meter, value, callback) => {

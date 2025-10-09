@@ -160,6 +160,13 @@ class ConnectedMeterSocket {
       listener(...args);
     }
   }
+
+  // Send a generic client event
+  async sendGenericClientEvent(eventData?: unknown) {
+    return await new Promise<any>((resolve) => {
+      this.#socket.emit('generic-client-event', eventData, (resp : any) => resolve(resp))
+    });
+  }
 }
 
 let connectedMeterSocket: ConnectedMeterSocket | null = null;

@@ -11,18 +11,42 @@ export { AbstractDriver };
 
 /**
  * @param {string} driversPath - The path to the drivers folder.
+ * @param {string} pluginsPath - The path to the plugins folder.
  * @returns {Promise<Record<string, Class<AbstractDriver>>>}
  */
-async function validateDrivers(driversPath) {
+async function loadDrivers({ driversPath, pluginsPath }) {
   console.log(chalk.blue('Validating drivers...'));
 
-  const drivers = {};
+  // Validate both in-tree and plugin drivers
+  const inTreeDrivers = await validateDrivers(driversPath);
+  const pluginDrivers = await validateDrivers(pluginsPath);
 
-  for (const filename of await fs.readdir(driversPath)) {
+  const drivers = { ...inTreeDrivers, ...pluginDrivers };
+
+  console.log(chalk.green('Drivers validated!\n'));
+  return drivers;
+}
+
+/**
+ * @param {string} filePath - The path to the drivers or plugins folder.
+ * @returns {Promise<Record<string, Class<AbstractDriver>>>}
+ */
+async function validateDrivers(filePath) {
+  const drivers = {};
+  let pathContents = [];
+
+  try {
+    pathContents = await fs.readdir(filePath);
+  } catch (e) {
+    console.debug(`Skipping loading drivers from non-existent file path: ${filePath}`);
+    return drivers;
+  }
+
+  for (const filename of pathContents) {
     console.debug(filename);
     const module = await import(
       url.pathToFileURL(
-        path.join(driversPath, filename)
+        path.join(filePath, filename)
       )
     );
 
@@ -38,8 +62,6 @@ async function validateDrivers(driversPath) {
 
     drivers[module.default.name] = module.default;
   }
-
-  console.log(chalk.green('Drivers validated!\n'));
   return drivers;
 }
 
@@ -68,13 +90,12 @@ async function initDevices(drivers, devicesConfig) {
 
 /**
  * Main entry point to start the library.
- * @param {object} options
- * @param {string} options.driversPath - Path to the drivers directory.
- * @param {object} options.config - The config object for devices.
+ * @param {Object} deviceConfig - Configuration for all devices
+ * @param {Object} serverConfig - Server configuration object
  */
-export async function initializeAndStartServer({ driversPath, config }) {
-  const drivers = await validateDrivers(driversPath);
-  const devices = await initDevices(drivers, config.devices);
+export async function initializeAndStartServer(devicesConfig, serverConfig) {
+  const drivers = await loadDrivers(devicesConfig);
+  const devices = await initDevices(drivers, devicesConfig.devices);
 
   process.on('SIGINT', async () => {
     console.log(chalk.red('\n~~~~~Shutting down!~~~~~'));
@@ -87,5 +108,5 @@ export async function initializeAndStartServer({ driversPath, config }) {
 
   console.log(chalk.greenBright('\n~~~~~SETUP COMPLETE~~~~~'));
 
-  await startServer(devices);
+  await startServer(devices, serverConfig);
 }

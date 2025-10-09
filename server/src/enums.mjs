@@ -13,5 +13,7 @@ export const ClientEvents = {
   // Value from client to server
   METER_VALUE: 'meter-value',
   // Value from server to other clients
-  METER_VALUE_ECHO: 'meter-value-echo'
+  METER_VALUE_ECHO: 'meter-value-echo',
+  // Generic client event
+  GENERIC_CLIENT_EVENT: 'generic-client-event'
 };
