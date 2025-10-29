@@ -53,7 +53,7 @@ async function validateDrivers(filePath) {
     if (!module.default) {
       throw error('MissingDefaultExport', filename);
     }
-    if (!(module.default.prototype instanceof AbstractDriver)) {
+    if (!Object.getPrototypeOf(AbstractDriver).isPrototypeOf(module.default)) {
       throw error('MissingDeviceExtend', filename);
     }
     if (module.default.name in drivers) {
