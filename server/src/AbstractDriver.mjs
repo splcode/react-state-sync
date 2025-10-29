@@ -6,10 +6,8 @@ import debounce from 'debounce';
 import chalk from 'chalk';
 import { ClientEvents, DeviceEvents } from './enums.mjs';
 import { error } from './errors.mjs';
+import config from '../config.json' with { type: 'json' };
 
-const config = JSON.parse(
-  await fs.readFile(path.join(import.meta.dirname, '..', 'config.json'))
-);
 
 /**
  * @typedef {Object} DriverConfig - Defaults in config.json, keep synced
