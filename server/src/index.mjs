@@ -28,25 +28,27 @@ async function loadDrivers({ driversPath, pluginsPath }) {
 }
 
 /**
- * @param {string} filePath - The path to the drivers or plugins folder.
+ * @param {string} driverPath - The path to the drivers or plugins folder.
  * @returns {Promise<Record<string, Class<AbstractDriver>>>}
  */
-async function validateDrivers(filePath) {
+async function validateDrivers(driverPath) {
   const drivers = {};
-  let pathContents = [];
 
-  try {
-    pathContents = await fs.readdir(filePath);
-  } catch (e) {
-    console.debug(`Skipping loading drivers from non-existent file path: ${filePath}`);
-    return drivers;
-  }
+  const dir = await fs.opendir(driverPath).catch(e => {
+    console.warn('Failed to load drivers.', e);
+    return [];
+  });
 
-  for (const filename of pathContents) {
-    console.debug(filename);
+  for await (const entry of dir) {
+    console.debug('Loading driver', entry.name);
+
     const module = await import(
       url.pathToFileURL(
-        path.join(filePath, filename)
+        path.join(
+          entry.parentPath,
+          entry.name,
+          entry.isDirectory() ? 'index.js' : ''
+        )
       )
     );
 
@@ -59,6 +61,7 @@ async function validateDrivers(filePath) {
 
     drivers[module.default.name] = module.default;
   }
+
   return drivers;
 }
 
