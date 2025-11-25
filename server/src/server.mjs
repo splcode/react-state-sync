@@ -67,5 +67,5 @@ export function startServer(devices, serverConfig) {
   });
 
   // Start the server
-  io.listen(4000);
+  io.listen(process.env.NODE_PORT || 4000);
 }
