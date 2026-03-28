@@ -40,6 +40,7 @@ async function validateDrivers(driverPath) {
   });
 
   for await (const entry of dir) {
+    if (entry.name.startsWith('.')) continue;
     console.debug('Loading driver', entry.name);
 
     const module = await import(
