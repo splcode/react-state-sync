@@ -2,7 +2,7 @@ import { Server } from 'socket.io';
 import { AbstractDriver } from './AbstractDriver.mjs';
 import { ClientEvents, DeviceEvents } from './enums.mjs';
 import { findDevice } from './utilities.mjs';
-import { createLogger } from './logfmt.mjs';
+import { createLogger } from './logger.mjs';
 
 const log = createLogger({ component: 'socket-server' });
 

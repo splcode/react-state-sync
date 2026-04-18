@@ -5,7 +5,7 @@ import throttle from 'throttleit';
 import debounce from 'debounce';
 import { ClientEvents, DeviceEvents } from './enums.mjs';
 import { error } from './errors.mjs';
-import { createLogger } from './logfmt.mjs';
+import { createLogger } from './logger.mjs';
 
 const config = JSON.parse(
   await fs.readFile(path.join(import.meta.dirname, '..', 'config.json'))

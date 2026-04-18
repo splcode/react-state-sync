@@ -5,10 +5,10 @@ import url from 'node:url';
 import { AbstractDriver } from './AbstractDriver.mjs';
 import { startServer } from './server.mjs';
 import { error } from './errors.mjs';
-import { createLogger } from './logfmt.mjs';
+import { createLogger } from './logger.mjs';
 
 export { AbstractDriver };
-export { createLogger, format, encodeValue, coerceArgs, winstonPrintf } from './logfmt.mjs';
+export { createLogger } from './logger.mjs';
 
 const log = createLogger({ component: 'state-server' });
 
