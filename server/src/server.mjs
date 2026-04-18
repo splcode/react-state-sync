@@ -2,10 +2,15 @@ import { Server } from 'socket.io';
 import { AbstractDriver } from './AbstractDriver.mjs';
 import { ClientEvents, DeviceEvents } from './enums.mjs';
 import { findDevice } from './utilities.mjs';
-import chalk from 'chalk';
+import { createLogger } from './logfmt.mjs';
+
+const log = createLogger({ component: 'socket-server' });
 
 /**
- * @param {Record<string, AbstractDriver>} devices
+ * Start the Socket.IO server that exposes devices to connected clients.
+ * @param {Record<string, AbstractDriver>} devices - Map of device name to driver instance
+ * @param {Object} [serverConfig] - Optional server configuration
+ * @param {(socket: import('socket.io').Socket, devices: Record<string, AbstractDriver>) => void} [serverConfig.socketOnConnectHook] - Called for each new client connection
  */
 export function startServer(devices, serverConfig) {
   const io = new Server({
@@ -27,11 +32,11 @@ export function startServer(devices, serverConfig) {
 
   // Handle new client connections
   io.on('connection', (socket) => {
-    console.log(chalk.green('Connected:', socket.id));
+    log.info('Connected', { socket_id: socket.id });
 
     // Sends the initial state to the newly connected client
     const initSync = async () => {
-      console.log(chalk.blue('init-sync', socket.id));
+      log.info('init-sync', { socket_id: socket.id });
       const initData = {};
       for (const [deviceName, device] of Object.entries(devices)) {
         initData[deviceName] = device.initSync();
@@ -59,7 +64,7 @@ export function startServer(devices, serverConfig) {
 
     // On client disconnect, unlock all meters to ensure clean state
     socket.on('disconnect', () => {
-      console.log(chalk.red('Disconnected:', socket.id));
+      log.info('Disconnected', { socket_id: socket.id });
       for (const device of Object.values(devices)) {
         device.unlockAllMeters(socket.id);
       }

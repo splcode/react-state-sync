@@ -3,9 +3,9 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import throttle from 'throttleit';
 import debounce from 'debounce';
-import chalk from 'chalk';
 import { ClientEvents, DeviceEvents } from './enums.mjs';
 import { error } from './errors.mjs';
+import { createLogger } from './logfmt.mjs';
 
 const config = JSON.parse(
   await fs.readFile(path.join(import.meta.dirname, '..', 'config.json'))
@@ -54,12 +54,7 @@ export class AbstractDriver extends EventEmitter {
     };
     this.config = deviceConfig;
 
-    // Convenience overrides so we can auto-log the name of the Device with the args
-    this.log = {
-      info: (...args) => console.log(chalk.whiteBright(this.name), ...args),
-      warn: (...args) => console.warn(chalk.yellowBright(this.name), ...args),
-      error: (...args) => console.error(chalk.redBright(this.name), ...args)
-    };
+    this.log = createLogger({ driver: this.name });
 
     // Throttle sets to the device, so we don't spam it
     this._set = throttle(this._set, this.#driverConfig.setThrottleMs);

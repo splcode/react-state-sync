@@ -5,9 +5,12 @@ import url from 'node:url';
 import { AbstractDriver } from './AbstractDriver.mjs';
 import { startServer } from './server.mjs';
 import { error } from './errors.mjs';
-import chalk from 'chalk';
+import { createLogger } from './logfmt.mjs';
 
 export { AbstractDriver };
+export { createLogger, format, encodeValue, coerceArgs, winstonPrintf } from './logfmt.mjs';
+
+const log = createLogger({ component: 'state-server' });
 
 /**
  * @param {string} driversPath - The path to the drivers folder.
@@ -15,7 +18,7 @@ export { AbstractDriver };
  * @returns {Promise<Record<string, Class<AbstractDriver>>>}
  */
 async function loadDrivers({ driversPath, pluginsPath }) {
-  console.log(chalk.blue('Validating drivers...'));
+  log.info('Validating drivers');
 
   // Validate both in-tree and plugin drivers
   const inTreeDrivers = await validateDrivers(driversPath);
@@ -23,7 +26,7 @@ async function loadDrivers({ driversPath, pluginsPath }) {
 
   const drivers = { ...inTreeDrivers, ...pluginDrivers };
 
-  console.log(chalk.green('Drivers validated!\n'));
+  log.info('Drivers validated');
   return drivers;
 }
 
@@ -35,13 +38,13 @@ async function validateDrivers(driverPath) {
   const drivers = {};
 
   const dir = await fs.opendir(driverPath).catch(e => {
-    console.warn('Failed to load drivers.', e);
+    log.warn('Failed to load drivers', e);
     return [];
   });
 
   for await (const entry of dir) {
     if (entry.name.startsWith('.')) continue;
-    console.debug('Loading driver', entry.name);
+    log.debug('Loading driver', { name: entry.name });
 
     const module = await import(
       url.pathToFileURL(
@@ -82,32 +85,35 @@ async function initDevices(drivers, devicesConfig) {
     devices[name] = new Driver(name, driverConfig, deviceConfig);
   }
 
-  console.log(chalk.blue('Initializing devices...\n'));
+  log.info('Initializing devices');
   await Promise.all(Object.values(devices).map((device) => device.init()));
-  console.log(chalk.green('\nDevices initialized!'));
+  log.info('Devices initialized');
 
   return devices;
 }
 
 /**
  * Main entry point to start the library.
- * @param {Object} deviceConfig - Configuration for all devices
- * @param {Object} serverConfig - Server configuration object
+ * @param {Object} devicesConfig - Configuration for all devices
+ * @param {string} devicesConfig.driversPath - Filesystem path to in-tree drivers
+ * @param {string} devicesConfig.pluginsPath - Filesystem path to plugin drivers
+ * @param {Record<string, {driver: string, driverConfig: Object, config: Object}>} devicesConfig.devices - Device definitions keyed by name
+ * @param {Object} [serverConfig] - Optional server configuration (see startServer)
  */
 export async function initializeAndStartServer(devicesConfig, serverConfig) {
   const drivers = await loadDrivers(devicesConfig);
   const devices = await initDevices(drivers, devicesConfig.devices);
 
   process.on('SIGINT', async () => {
-    console.log(chalk.red('\n~~~~~Shutting down!~~~~~'));
+    log.info('Shutting down');
     for (const device of Object.values(devices)) {
       await device.shutdown();
     }
-    console.log(chalk.red('\n~~~~~SHUTDOWN COMPLETE!~~~~~'));
+    log.info('Shutdown complete');
     process.exit(0);
   });
 
-  console.log(chalk.greenBright('\n~~~~~SETUP COMPLETE~~~~~'));
+  log.info('Setup complete');
 
   await startServer(devices, serverConfig);
 }

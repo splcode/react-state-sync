@@ -1,17 +1,17 @@
 {
   "name": "@splcode/state-server",
-  "version": "1.4.1",
+  "version": "2.0.0",
   "description": "A state server library for device management and real-time communication",
   "main": "src/index.mjs",
   "scripts": {
-    "start": "node src/index.mjs"
+    "start": "node src/index.mjs",
+    "test": "node --test test/"
   },
   "keywords": [],
   "author": "spl",
   "license": "MIT",
   "type": "module",
   "dependencies": {
-    "chalk": "^5.3.0",
     "debounce": "^2.1.1",
     "socket.io": "^4.8.0",
     "throttleit": "^2.1.0"
